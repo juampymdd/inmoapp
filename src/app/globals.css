@@ -1,26 +1,61 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --color-background: #ffffff;
+  --color-foreground: #000000;
+  --color-primary: #050505;
+  --color-secondary: #c5a059; /* More sophisticated gold */
+  --color-accent: #f8f8f8;
+  --color-muted: #717171;
+  --color-card: #ffffff;
+  --color-border: #eeeeee;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+@layer base {
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: -0.01em;
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  h1, h2, h3, h4, h5, h6 {
+    letter-spacing: -0.03em;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Luxury Custom Classes */
+.glass {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-luxury {
+  @apply relative overflow-hidden px-8 py-4 bg-black text-white font-black uppercase tracking-widest text-[10px] transition-all duration-500;
+}
+
+.btn-luxury:hover {
+  @apply bg-[#c5a059] -translate-y-1 shadow-2xl;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+::-webkit-scrollbar-thumb {
+  background: #000;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #c5a059;
+}
+
+/* Smooth Scrolling */
+html {
+  scroll-behavior: smooth;
 }
