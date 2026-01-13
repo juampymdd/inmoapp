@@ -1,31 +1,17 @@
 import type { NextAuthConfig } from "next-auth"
 import Credentials from "next-auth/providers/credentials"
-import bcrypt from "bcryptjs"
-import { prisma } from "@/lib/prisma"
-import { LoginSchema } from "./lib/schemas"
 
+// Esta configuración se usa en el middleware (Edge Runtime)
+// NO debe importar Prisma ni bcrypt aquí porque no funcionan en Edge
 export default {
   providers: [
     Credentials({
-      async authorize(credentials) {
-        const validatedFields = LoginSchema.safeParse(credentials)
-
-        if (validatedFields.success) {
-          const { email, password } = validatedFields.data
-          
-          const user = await prisma.user.findUnique({
-            where: { email }
-          })
-
-          if (!user || !user.password) return null
-
-          const passwordsMatch = await bcrypt.compare(password, user.password)
-
-          if (passwordsMatch) return user
-        }
-
+      async authorize() {
+        // La autorización real se hace en auth.ts (Node.js Runtime)
+        // Aquí solo definimos el provider para el middleware
         return null
       },
     }),
   ],
 } satisfies NextAuthConfig
+
