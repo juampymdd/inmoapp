@@ -22,33 +22,5 @@ export const PropertySchema = z.object({
   area: z.coerce.number().positive().optional(),
   featured: z.boolean().default(false),
   status: z.enum(["AVAILABLE", "SOLD", "RENTED"]).default("AVAILABLE"),
-  images: z.array(z.string()).min(1, "Debe cargar al menos una imagen").transform(arr => JSON.stringify(arr)),
+  images: z.array(z.string()).min(1, "Debe cargar al menos una imagen"),
 })
-
-// Schema for reading properties (transforms JSON string back to array)
-export const PropertyOutputSchema = z.object({
-  id: z.string(),
-  title: z.string(),
-  description: z.string(),
-  price: z.number(),
-  currency: z.string(),
-  location: z.string(),
-  type: z.string(),
-  operation: z.string(),
-  bedrooms: z.number().nullable(),
-  bathrooms: z.number().nullable(),
-  area: z.number().nullable(),
-  featured: z.boolean(),
-  status: z.string(),
-  images: z.string().transform(str => JSON.parse(str) as string[]),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-})
-
-// Helper to parse property images from DB
-export function parsePropertyImages(property: any) {
-  return {
-    ...property,
-    images: typeof property.images === 'string' ? JSON.parse(property.images) : property.images
-  }
-}

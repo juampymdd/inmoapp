@@ -43,13 +43,23 @@ export function PropertyForm({ onClose, onSuccess, initialData }: PropertyFormPr
     setValue,
     watch,
     formState: { errors },
-  } = useForm<FormData>({
-    resolver: zodResolver(PropertyFormSchema),
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } = useForm<any>({
+    resolver: zodResolver(PropertyFormSchema) as any,
     defaultValues: initialData ? {
-      ...initialData,
+      title: initialData.title,
+      description: initialData.description,
+      price: initialData.price,
+      currency: initialData.currency,
+      location: initialData.location,
+      type: initialData.type,
+      operation: initialData.operation,
       bedrooms: initialData.bedrooms ?? undefined,
       bathrooms: initialData.bathrooms ?? undefined,
       area: initialData.area ?? undefined,
+      featured: initialData.featured,
+      status: initialData.status,
+      images: initialData.images,
     } : {
       currency: "USD",
       status: "AVAILABLE",
@@ -63,7 +73,6 @@ export function PropertyForm({ onClose, onSuccess, initialData }: PropertyFormPr
     setError(null)
 
     try {
-      // Pequeño delay para simular request
       await new Promise((r) => setTimeout(r, 300))
 
       if (initialData) {
@@ -100,7 +109,7 @@ export function PropertyForm({ onClose, onSuccess, initialData }: PropertyFormPr
                 {...register("title")} 
                 className="w-full bg-[#1A1A1A] border border-white/5 rounded-xl p-3 focus:outline-none focus:border-[#C5A059]"
               />
-              {errors.title && <p className="text-red-500 text-xs">{errors.title.message}</p>}
+              {errors.title && <p className="text-red-500 text-xs">{errors.title.message as string}</p>}
             </div>
 
             <div className="space-y-2">
@@ -109,7 +118,7 @@ export function PropertyForm({ onClose, onSuccess, initialData }: PropertyFormPr
                 {...register("location")} 
                 className="w-full bg-[#1A1A1A] border border-white/5 rounded-xl p-3 focus:outline-none focus:border-[#C5A059]"
               />
-              {errors.location && <p className="text-red-500 text-xs">{errors.location.message}</p>}
+              {errors.location && <p className="text-red-500 text-xs">{errors.location.message as string}</p>}
             </div>
 
             <div className="space-y-2">
@@ -144,7 +153,7 @@ export function PropertyForm({ onClose, onSuccess, initialData }: PropertyFormPr
                   className="flex-1 bg-[#1A1A1A] border border-white/5 rounded-xl p-3 focus:outline-none focus:border-[#C5A059]"
                 />
               </div>
-              {errors.price && <p className="text-red-500 text-xs">{errors.price.message}</p>}
+              {errors.price && <p className="text-red-500 text-xs">{errors.price.message as string}</p>}
             </div>
 
             <div className="grid grid-cols-3 gap-4">
@@ -170,19 +179,19 @@ export function PropertyForm({ onClose, onSuccess, initialData }: PropertyFormPr
               rows={4}
               className="w-full bg-[#1A1A1A] border border-white/5 rounded-xl p-3 focus:outline-none focus:border-[#C5A059] resize-none"
             />
-            {errors.description && <p className="text-red-500 text-xs">{errors.description.message}</p>}
+            {errors.description && <p className="text-red-500 text-xs">{errors.description.message as string}</p>}
           </div>
 
           <div className="space-y-4">
             <label className="text-sm text-gray-400">URLs de Imágenes (una por línea)</label>
             <textarea 
               placeholder="https://example.com/image1.jpg"
-              onChange={(e) => setValue("images", e.target.value.split("\n").filter(v => v.trim() !== ""))}
+              onChange={(e) => setValue("images", e.target.value.split("\n").filter((v: string) => v.trim() !== ""))}
               className="w-full bg-[#1A1A1A] border border-white/5 rounded-xl p-3 focus:outline-none focus:border-[#C5A059] font-mono text-sm"
               rows={3}
               defaultValue={currentImages?.join("\n")}
             />
-            {errors.images && <p className="text-red-500 text-xs">{errors.images.message}</p>}
+            {errors.images && <p className="text-red-500 text-xs">{errors.images.message as string}</p>}
           </div>
 
           {error && <p className="text-red-500 text-center">{error}</p>}
