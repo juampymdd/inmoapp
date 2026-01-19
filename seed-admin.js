@@ -1,12 +1,14 @@
 require("dotenv").config();
 const { PrismaClient } = require("@prisma/client");
-const { PrismaPg } = require("@prisma/adapter-pg");
-const { Pool } = require("pg");
+const { PrismaLibSQL } = require("@prisma/adapter-libsql");
+const { createClient } = require("@libsql/client");
 const bcrypt = require("bcryptjs");
 
-const connectionString = process.env.DATABASE_URL;
-const pool = new Pool({ connectionString });
-const adapter = new PrismaPg(pool);
+const libsql = createClient({
+    url: process.env.TURSO_DATABASE_URL,
+    authToken: process.env.TURSO_AUTH_TOKEN,
+});
+const adapter = new PrismaLibSQL(libsql);
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
@@ -37,11 +39,9 @@ async function main() {
 main()
     .then(async () => {
         await prisma.$disconnect();
-        await pool.end();
     })
     .catch(async (e) => {
         console.error(e);
         await prisma.$disconnect();
-        await pool.end();
         process.exit(1);
     });

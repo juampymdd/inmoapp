@@ -1,14 +1,16 @@
 import { NextResponse } from "next/server"
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
-import { PropertySchema } from "@/lib/schemas"
+import { PropertySchema, parsePropertyImages } from "@/lib/schemas"
 
 export async function GET() {
   try {
     const properties = await prisma.property.findMany({
       orderBy: { createdAt: "desc" }
     })
-    return NextResponse.json(properties)
+    // Parse images from JSON string to array
+    const parsed = properties.map(parsePropertyImages)
+    return NextResponse.json(parsed)
   } catch (error: any) {
     return NextResponse.json({ error: "Failed to fetch properties", details: error.message }, { status: 500 })
   }

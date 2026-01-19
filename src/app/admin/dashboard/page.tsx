@@ -1,57 +1,52 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Plus, Building2, MapPin, DollarSign, Edit3, Trash2 } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { Plus, Building2, MapPin, DollarSign, Edit3, Trash2, LogOut } from "lucide-react"
 import { PropertyForm } from "@/components/admin/PropertyForm"
-
-interface Property {
-  id: string
-  title: string
-  location: string
-  type: string
-  operation: string
-  currency: string
-  price: number
-}
+import { usePropertyStore, useAuthStore, Property } from "@/store"
 
 export default function DashboardPage() {
-  const [properties, setProperties] = useState<Property[]>([])
-  const [loading, setLoading] = useState(true)
+  const [mounted, setMounted] = useState(false)
   const [showForm, setShowForm] = useState(false)
   const [editingProperty, setEditingProperty] = useState<Property | null>(null)
-
-  const fetchProperties = async () => {
-    try {
-      const res = await fetch("/api/properties")
-      const data = await res.json()
-      if (Array.isArray(data)) {
-        setProperties(data)
-      } else {
-        console.error("API returned error:", data)
-        setProperties([])
-      }
-    } catch (error) {
-      console.error("Error fetching properties:", error)
-      setProperties([])
-    } finally {
-      setLoading(false)
-    }
-  }
+  
+  const router = useRouter()
+  const { properties, deleteProperty } = usePropertyStore()
+  const { isAuthenticated, logout, user } = useAuthStore()
 
   useEffect(() => {
-    fetchProperties()
+    setMounted(true)
   }, [])
+
+  useEffect(() => {
+    if (mounted && !isAuthenticated) {
+      router.push("/admin/login")
+    }
+  }, [mounted, isAuthenticated, router])
 
   const handleEdit = (property: Property) => {
     setEditingProperty(property)
     setShowForm(true)
   }
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = (id: string) => {
     if (confirm("¿Estás seguro de eliminar esta propiedad?")) {
-      await fetch(`/api/properties/${id}`, { method: "DELETE" })
-      fetchProperties()
+      deleteProperty(id)
     }
+  }
+
+  const handleLogout = () => {
+    logout()
+    router.push("/admin/login")
+  }
+
+  if (!mounted || !isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
+        <div className="text-gray-500">Cargando...</div>
+      </div>
+    )
   }
 
   return (
@@ -60,14 +55,22 @@ export default function DashboardPage() {
         <div className="flex justify-between items-center mb-10">
           <div>
             <h1 className="text-4xl font-bold mb-2">Gestión de <span className="text-[#C5A059]">Propiedades</span></h1>
-            <p className="text-gray-400">Panel administrativo de InmoApp</p>
+            <p className="text-gray-400">Panel administrativo de InmoApp • {user?.name}</p>
           </div>
-          <button 
-            onClick={() => { setEditingProperty(null); setShowForm(true); }}
-            className="bg-[#C5A059] hover:bg-[#B38F48] text-black font-bold px-6 py-3 rounded-xl flex items-center gap-2 transition-all active:scale-[0.98]"
-          >
-            <Plus className="w-5 h-5" /> Nueva Propiedad
-          </button>
+          <div className="flex gap-3">
+            <button 
+              onClick={() => { setEditingProperty(null); setShowForm(true); }}
+              className="bg-[#C5A059] hover:bg-[#B38F48] text-black font-bold px-6 py-3 rounded-xl flex items-center gap-2 transition-all active:scale-[0.98]"
+            >
+              <Plus className="w-5 h-5" /> Nueva Propiedad
+            </button>
+            <button 
+              onClick={handleLogout}
+              className="border border-white/10 hover:bg-white/5 text-white px-4 py-3 rounded-xl flex items-center gap-2 transition-all"
+            >
+              <LogOut className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* Stats */}
@@ -102,9 +105,7 @@ export default function DashboardPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {loading ? (
-                <tr><td colSpan={5} className="px-6 py-10 text-center text-gray-500">Cargando...</td></tr>
-              ) : properties.length === 0 ? (
+              {properties.length === 0 ? (
                 <tr><td colSpan={5} className="px-6 py-10 text-center text-gray-500">No hay propiedades registradas</td></tr>
               ) : properties.map((p) => (
                 <tr key={p.id} className="hover:bg-white/[0.02] transition-colors">
@@ -139,7 +140,7 @@ export default function DashboardPage() {
       {showForm && (
         <PropertyForm 
           onClose={() => setShowForm(false)} 
-          onSuccess={() => { setShowForm(false); fetchProperties(); }}
+          onSuccess={() => setShowForm(false)}
           initialData={editingProperty}
         />
       )}

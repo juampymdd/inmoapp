@@ -368,7 +368,7 @@ export default function LandingPage() {
       <section className="py-32 container mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
         <div className="grid grid-cols-2 gap-6 relative">
           <div className="space-y-6">
-            <img src="https://images.unsplash.com/photo-1600607687940-4e524cb350b3?auto=format&fit=crop&q=80&w=800" className="w-full aspect-square object-cover shadow-2xl" alt="Lujo" />
+            <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=800&fit=crop" className="w-full aspect-square object-cover shadow-2xl" alt="Lujo" />
             <div className="p-8 bg-black text-white">
               <Star className="w-8 h-8 text-[var(--color-secondary)] mb-6 fill-current" />
               <p className="text-sm font-bold uppercase tracking-widest leading-loose">"Encontramos no solo una casa, sino un refugio que refleja exactamente quiénes somos."</p>
@@ -376,8 +376,8 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="space-y-6 mt-16">
-             <img src="https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&q=80&w=800" className="w-full aspect-[3/4] object-cover shadow-2xl" alt="Lujo" />
-             <img src="https://images.unsplash.com/photo-1600585154340-be6199f7d009?auto=format&fit=crop&q=80&w=800" className="w-full aspect-square object-cover shadow-2xl" alt="Lujo" />
+             <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=1000&fit=crop" className="w-full aspect-[3/4] object-cover shadow-2xl" alt="Lujo" />
+             <img src="https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=800&h=800&fit=crop" className="w-full aspect-square object-cover shadow-2xl" alt="Lujo" />
           </div>
         </div>
 

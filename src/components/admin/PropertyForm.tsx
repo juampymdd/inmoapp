@@ -2,22 +2,40 @@
 
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { PropertySchema } from "@/lib/schemas"
 import { z } from "zod"
 import { X, Loader2 } from "lucide-react"
 import { useState } from "react"
+import { usePropertyStore, Property } from "@/store"
 
-type FormData = z.infer<typeof PropertySchema>
+// Schema simplificado para el form
+const PropertyFormSchema = z.object({
+  title: z.string().min(5, "El título debe tener al menos 5 caracteres"),
+  description: z.string().min(20, "La descripción debe ser más detallada"),
+  price: z.coerce.number().positive("El precio debe ser un número positivo"),
+  currency: z.string().default("USD"),
+  location: z.string().min(3, "La ubicación es requerida"),
+  type: z.enum(["CASA", "DEPTO", "LOTE", "LOCAL", "OTRO"]),
+  operation: z.enum(["VENTA", "ALQUILER"]),
+  bedrooms: z.coerce.number().int().nonnegative().optional(),
+  bathrooms: z.coerce.number().int().nonnegative().optional(),
+  area: z.coerce.number().positive().optional(),
+  featured: z.boolean().default(false),
+  status: z.enum(["AVAILABLE", "SOLD", "RENTED"]).default("AVAILABLE"),
+  images: z.array(z.string()).min(1, "Debe cargar al menos una imagen"),
+})
+
+type FormData = z.infer<typeof PropertyFormSchema>
 
 interface PropertyFormProps {
   onClose: () => void
   onSuccess: () => void
-  initialData?: any
+  initialData?: Property | null
 }
 
 export function PropertyForm({ onClose, onSuccess, initialData }: PropertyFormProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const { addProperty, updateProperty } = usePropertyStore()
 
   const {
     register,
@@ -26,8 +44,13 @@ export function PropertyForm({ onClose, onSuccess, initialData }: PropertyFormPr
     watch,
     formState: { errors },
   } = useForm<FormData>({
-    resolver: zodResolver(PropertySchema),
-    defaultValues: initialData || {
+    resolver: zodResolver(PropertyFormSchema),
+    defaultValues: initialData ? {
+      ...initialData,
+      bedrooms: initialData.bedrooms ?? undefined,
+      bathrooms: initialData.bathrooms ?? undefined,
+      area: initialData.area ?? undefined,
+    } : {
       currency: "USD",
       status: "AVAILABLE",
       images: [],
@@ -40,16 +63,14 @@ export function PropertyForm({ onClose, onSuccess, initialData }: PropertyFormPr
     setError(null)
 
     try {
-      const url = initialData ? `/api/properties/${initialData.id}` : "/api/properties"
-      const method = initialData ? "PATCH" : "POST"
+      // Pequeño delay para simular request
+      await new Promise((r) => setTimeout(r, 300))
 
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      })
-
-      if (!res.ok) throw new Error("Error al guardar la propiedad")
+      if (initialData) {
+        updateProperty(initialData.id, data)
+      } else {
+        addProperty(data)
+      }
       
       onSuccess()
     } catch (err: any) {

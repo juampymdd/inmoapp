@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
-import { PropertySchema } from "@/lib/schemas"
+import { PropertySchema, parsePropertyImages } from "@/lib/schemas"
 
 export async function GET(
   req: Request,
@@ -16,7 +16,7 @@ export async function GET(
       return NextResponse.json({ error: "Property not found" }, { status: 404 })
     }
 
-    return NextResponse.json(property)
+    return NextResponse.json(parsePropertyImages(property))
   } catch (error) {
     return NextResponse.json({ error: "Failed to fetch property" }, { status: 500 })
   }

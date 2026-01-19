@@ -1,11 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { LoginSchema } from "@/lib/schemas"
+import { useAuthStore } from "@/store"
 import { z } from "zod"
 import { Loader2, Lock, Mail } from "lucide-react"
 
@@ -14,7 +14,16 @@ type FormData = z.infer<typeof LoginSchema>
 export default function LoginPage() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const router = useRouter()
+  const { login, isAuthenticated } = useAuthStore()
+
+  useEffect(() => {
+    setMounted(true)
+    if (isAuthenticated) {
+      router.push("/admin/dashboard")
+    }
+  }, [isAuthenticated, router])
 
   const {
     register,
@@ -28,24 +37,21 @@ export default function LoginPage() {
     setLoading(true)
     setError(null)
 
-    try {
-      const result = await signIn("credentials", {
-        email: data.email,
-        password: data.password,
-        redirect: false,
-      })
+    // Pequeño delay para simular request
+    await new Promise((r) => setTimeout(r, 500))
 
-      if (result?.error) {
-        setError("Credenciales inválidas")
-      } else {
-        router.push("/admin/dashboard")
-      }
-    } catch (err) {
-      setError("Algo salió mal. Intente de nuevo.")
-    } finally {
-      setLoading(false)
+    const success = login(data.email, data.password)
+    
+    if (success) {
+      router.push("/admin/dashboard")
+    } else {
+      setError("Credenciales inválidas")
     }
+    
+    setLoading(false)
   }
+
+  if (!mounted) return null
 
   return (
     <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center p-4">
@@ -53,6 +59,7 @@ export default function LoginPage() {
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-white mb-2">INMO<span className="text-[#C5A059]">APP</span></h1>
           <p className="text-gray-400">Acceso Administrativo</p>
+          <p className="text-gray-600 text-xs mt-2">Demo: admin@inmoapp.com / admin123</p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
